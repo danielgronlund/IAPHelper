@@ -13,30 +13,23 @@
 #define kProductPurchasedNotification       @"ProductPurchased"
 #define kProductPurchaseFailedNotification  @"ProductPurchaseFailed"
 
-typedef void (^requestProductsResponseBlock)(SKProductsRequest* request , SKProductsResponse* response);
-typedef void (^buyProductCompleteResponseBlock)(SKPaymentTransaction* transcation);
-typedef void (^buyProductFailResponseBlock)(SKPaymentTransaction* transcation);
-typedef void (^resoreProductsCompleteResponseBlock) (SKPaymentQueue* payment);
-typedef void (^resoreProductsFailResponseBlock) (SKPaymentQueue* payment,NSError* error);
+typedef void (^requestProductsResponseBlock)(SKProductsRequest *request, SKProductsResponse *response);
+typedef void (^buyProductCompleteResponseBlock)(SKPaymentTransaction *transcation);
+typedef void (^buyProductFailResponseBlock)(SKPaymentTransaction *transcation);
+typedef void (^resoreProductsCompleteResponseBlock) (SKPaymentQueue *payment);
+typedef void (^resoreProductsFailResponseBlock) (SKPaymentQueue *payment, NSError *error);
 
-@interface IAPHelper : NSObject <SKProductsRequestDelegate, SKPaymentTransactionObserver> {
-    NSSet * _productIdentifiers;    
-    NSArray * _products;
-    NSMutableSet * _purchasedProducts;
-    SKProductsRequest * _request;
-}
+@interface IAPHelper : NSObject <SKProductsRequestDelegate, SKPaymentTransactionObserver>
 
-@property (retain) NSSet *productIdentifiers;
-@property (retain) NSArray * products;
-@property (retain) NSMutableSet *purchasedProducts;
-@property (retain) SKProductsRequest *request;
+@property (nonatomic,strong,readonly) NSSet *productIdentifiers;
+@property (nonatomic,strong,readonly) SKProductsRequest *request;
+@property (nonatomic,strong,readonly) NSArray *products;
+@property (nonatomic,strong,readonly) NSMutableSet *purchasedProducts;
 
-- (void)requestProductsWithCompletion:(requestProductsResponseBlock)completion;
 - (id)initWithProductIdentifiers:(NSSet *)productIdentifiers;
-
+- (void)requestProductsWithCompletion:(requestProductsResponseBlock)completion;
 - (void)buyProduct:(SKProduct *)productIdentifier onCompletion:(buyProductCompleteResponseBlock)completion OnFail:(buyProductFailResponseBlock)fail;
+- (void)restoreProductsWithCompletion:(resoreProductsCompleteResponseBlock)completion OnFail:(resoreProductsFailResponseBlock)fail;
+- (BOOL)isPurchasedProductsIdentifier:(NSString*)productID;
 
--(void)restoreProductsWithCompletion:(resoreProductsCompleteResponseBlock)completion OnFail:(resoreProductsFailResponseBlock)fail;
-
--(BOOL)isPurchasedProductsIdentifier:(NSString*)productID;
 @end
