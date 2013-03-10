@@ -15,11 +15,11 @@
 @property (nonatomic,strong) NSArray *products;
 @property (nonatomic,strong) NSMutableSet *purchasedProducts;
 
-@property (nonatomic,strong) requestProductsResponseBlock requestProductsBlock;
-@property (nonatomic,strong) buyProductCompleteResponseBlock buyProductCompleteBlock;
-@property (nonatomic,strong) buyProductFailResponseBlock buyProductFailBlock;
-@property (nonatomic,strong) resoreProductsCompleteResponseBlock restoreCompletedBlock;
-@property (nonatomic,strong) resoreProductsFailResponseBlock restoreFailBlock;
+@property (nonatomic,copy) requestProductsResponseBlock requestProductsBlock;
+@property (nonatomic,copy) buyProductCompleteResponseBlock buyProductCompleteBlock;
+@property (nonatomic,copy) buyProductFailResponseBlock buyProductFailBlock;
+@property (nonatomic,copy) resoreProductsCompleteResponseBlock restoreCompletedBlock;
+@property (nonatomic,copy) resoreProductsFailResponseBlock restoreFailBlock;
 
 @end
 
