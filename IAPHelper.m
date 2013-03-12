@@ -15,11 +15,9 @@
 @property (nonatomic,strong) NSArray *products;
 @property (nonatomic,strong) NSMutableSet *purchasedProducts;
 
-@property (nonatomic,copy) requestProductsResponseBlock requestProductsBlock;
-@property (nonatomic,copy) buyProductCompleteResponseBlock buyProductCompleteBlock;
-@property (nonatomic,copy) buyProductFailResponseBlock buyProductFailBlock;
-@property (nonatomic,copy) resoreProductsCompleteResponseBlock restoreCompletedBlock;
-@property (nonatomic,copy) resoreProductsFailResponseBlock restoreFailBlock;
+@property (nonatomic,copy) IAPRequestProductsResponseBlock requestProductsBlock;
+@property (nonatomic,copy) IAPBuyProductCompletionBlock buyProductCompleteBlock;
+@property (nonatomic,copy) IAPRestoreProductsCompletionBlock restoreCompletedBlock;
 
 @end
 
@@ -49,10 +47,10 @@
     return [[NSUserDefaults standardUserDefaults] boolForKey:productID];
 }
 
-- (void)requestProductsWithCompletion:(requestProductsResponseBlock)completion {
+- (void)requestProductsWithCompletion:(IAPRequestProductsResponseBlock)completion {
     self.request = [[SKProductsRequest alloc] initWithProductIdentifiers:_productIdentifiers];
     _request.delegate = self;
-    self.requestProductsBlock = [completion copy];
+    self.requestProductsBlock = completion;
     [_request start];
 }
 
@@ -61,7 +59,9 @@
     self.products = response.products;
     self.request = nil;
 
-    self.requestProductsBlock (request,response);
+    if (_requestProductsBlock) {
+        _requestProductsBlock(request,response);
+    }
 }
 
 - (void)recordTransaction:(SKPaymentTransaction *)transaction {
@@ -83,8 +83,8 @@
 
     [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
 
-    if(self.buyProductCompleteBlock != nil) {
-        self.buyProductCompleteBlock(transaction);
+    if(_buyProductCompleteBlock) {
+        _buyProductCompleteBlock(transaction, nil);
     }
 }
 
@@ -93,10 +93,10 @@
 
     [self recordTransaction: transaction];
     [self provideContent: transaction.originalTransaction.payment.productIdentifier];
-    [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
+    [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
 
-    if (self.buyProductCompleteBlock != nil) {
-        self.buyProductCompleteBlock(transaction);
+    if (_buyProductCompleteBlock) {
+        _buyProductCompleteBlock(transaction, nil);
     }
 }
 
@@ -106,8 +106,8 @@
     }
 
     [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
-    if(self.buyProductFailBlock != nil) {
-        self.buyProductFailBlock(transaction);
+    if(_buyProductCompleteBlock) {
+        _buyProductCompleteBlock(transaction, transaction.error);
     }
 }
 
@@ -128,35 +128,30 @@
     }
 }
 
-- (void)buyProduct:(SKProduct *)productIdentifier onCompletion:(buyProductCompleteResponseBlock)completion OnFail:(buyProductFailResponseBlock)fail {
-    self.buyProductCompleteBlock = [completion copy];
-    self.buyProductFailBlock = [fail copy];
-
+- (void)buyProduct:(SKProduct *)productIdentifier completion:(IAPBuyProductCompletionBlock)completion {
+    _buyProductCompleteBlock = completion;
     self.restoreCompletedBlock = nil;
-    self.restoreFailBlock = nil;
     SKPayment *payment = [SKPayment paymentWithProduct:productIdentifier];
     [[SKPaymentQueue defaultQueue] addPayment:payment];
 }
 
-- (void)restoreProductsWithCompletion:(resoreProductsCompleteResponseBlock)completion OnFail:(resoreProductsFailResponseBlock)fail {
-    //clear it
+- (void)restoreProductsWithCompletion:(IAPRestoreProductsCompletionBlock)completion {
     self.buyProductCompleteBlock = nil;
-    self.buyProductFailBlock = nil;
-
-    self.restoreCompletedBlock = [completion copy];
-    self.restoreFailBlock = [fail copy];
+    self.restoreCompletedBlock = completion;
     [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
 }
 
 - (void)paymentQueue:(SKPaymentQueue *)queue restoreCompletedTransactionsFailedWithError:(NSError *)error {
     NSLog(@"Transaction error: %@ %d", error.localizedDescription,error.code);
     if (_restoreCompletedBlock) {
-        _restoreFailBlock(queue,error);
+        _restoreCompletedBlock(queue, error);
     }
 }
 
 - (void)paymentQueueRestoreCompletedTransactionsFinished:(SKPaymentQueue *)queue {
-    self.restoreCompletedBlock(queue);
+    if (_restoreCompletedBlock) {
+        _restoreCompletedBlock(queue,nil);
+    }
 }
 
 @end

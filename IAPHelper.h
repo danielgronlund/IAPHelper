@@ -13,11 +13,13 @@
 #define kProductPurchasedNotification       @"ProductPurchased"
 #define kProductPurchaseFailedNotification  @"ProductPurchaseFailed"
 
-typedef void (^requestProductsResponseBlock)(SKProductsRequest *request, SKProductsResponse *response);
-typedef void (^buyProductCompleteResponseBlock)(SKPaymentTransaction *transcation);
-typedef void (^buyProductFailResponseBlock)(SKPaymentTransaction *transcation);
-typedef void (^resoreProductsCompleteResponseBlock) (SKPaymentQueue *payment);
-typedef void (^resoreProductsFailResponseBlock) (SKPaymentQueue *payment, NSError *error);
+typedef void (^IAPRequestProductsResponseBlock)(SKProductsRequest *request, SKProductsResponse *response);
+
+// if purchase is successful, error will be nil, and non-nil if an error occurs
+typedef void (^IAPBuyProductCompletionBlock)(SKPaymentTransaction *transaction, NSError *error);
+
+// if restore is successful, error will be nil, and non-nil if an error occurs
+typedef void (^IAPRestoreProductsCompletionBlock)(SKPaymentQueue *payment, NSError *error);
 
 @interface IAPHelper : NSObject <SKProductsRequestDelegate, SKPaymentTransactionObserver>
 
@@ -27,9 +29,13 @@ typedef void (^resoreProductsFailResponseBlock) (SKPaymentQueue *payment, NSErro
 @property (nonatomic,strong,readonly) NSMutableSet *purchasedProducts;
 
 - (id)initWithProductIdentifiers:(NSSet *)productIdentifiers;
-- (void)requestProductsWithCompletion:(requestProductsResponseBlock)completion;
-- (void)buyProduct:(SKProduct *)productIdentifier onCompletion:(buyProductCompleteResponseBlock)completion OnFail:(buyProductFailResponseBlock)fail;
-- (void)restoreProductsWithCompletion:(resoreProductsCompleteResponseBlock)completion OnFail:(resoreProductsFailResponseBlock)fail;
-- (BOOL)isPurchasedProductsIdentifier:(NSString*)productID;
+
+- (void)requestProductsWithCompletion:(IAPRequestProductsResponseBlock)completion;
+
+- (void)buyProduct:(SKProduct *)productIdentifier completion:(IAPBuyProductCompletionBlock)completion;
+
+- (void)restoreProductsWithCompletion:(IAPRestoreProductsCompletionBlock)completion;
+
+- (BOOL)isPurchasedProductsIdentifier:(NSString *)productID;
 
 @end
