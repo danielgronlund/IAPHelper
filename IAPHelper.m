@@ -78,10 +78,10 @@
 - (void)completeTransaction:(SKPaymentTransaction *)transaction {
     NSLog(@"completeTransaction...");
 
-    [self recordTransaction: transaction];
-    [self provideContent: transaction.payment.productIdentifier];
+    [self recordTransaction:transaction];
+    [self provideContent:transaction.payment.productIdentifier];
 
-    [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
+    [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
 
     if(_buyProductCompleteBlock) {
         _buyProductCompleteBlock(transaction, nil);
@@ -91,8 +91,8 @@
 - (void)restoreTransaction:(SKPaymentTransaction *)transaction {
     NSLog(@"restoreTransaction...");
 
-    [self recordTransaction: transaction];
-    [self provideContent: transaction.originalTransaction.payment.productIdentifier];
+    [self recordTransaction:transaction];
+    [self provideContent:transaction.originalTransaction.payment.productIdentifier];
     [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
 
     if (_buyProductCompleteBlock) {
@@ -153,5 +153,7 @@
         _restoreCompletedBlock(queue,nil);
     }
 }
+
+#pragma mark - SKProductsRequestDelegate
 
 @end
