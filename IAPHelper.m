@@ -70,7 +70,7 @@
 
 - (void)provideContent:(NSString *)productIdentifier {
     NSLog(@"Toggling flag for: %@", productIdentifier);
-    [[NSUserDefaults standardUserDefaults] setBool:TRUE forKey:productIdentifier];
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:productIdentifier];
     [[NSUserDefaults standardUserDefaults] synchronize];
     [_purchasedProducts addObject:productIdentifier];
 }
@@ -153,7 +153,5 @@
         _restoreCompletedBlock(queue,nil);
     }
 }
-
-#pragma mark - SKProductsRequestDelegate
 
 @end
