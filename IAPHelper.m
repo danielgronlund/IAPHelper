@@ -65,7 +65,13 @@
 }
 
 - (void)recordTransaction:(SKPaymentTransaction *)transaction {
-    // TODO: Record the transaction on the server side...
+    NSString *dataString = [[NSString alloc] initWithData:transaction.transactionReceipt
+                                                 encoding:NSUTF8StringEncoding];
+    [[BPHandsetLog sharedInstance] recordEvent:@"transaction_receipt"
+                                      withData:(@{
+                                                @"product_identifier" : transaction.payment.productIdentifier,
+                                                @"data": dataString
+                                                })];
 }
 
 - (void)provideContent:(NSString *)productIdentifier {
